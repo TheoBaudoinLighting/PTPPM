@@ -30,3 +30,22 @@
 *.exe
 *.out
 *.app
+
+# Build directory
+build/
+
+# Debug directory
+debug/
+cmake-build-debug/
+
+# Bin directory
+bin/
+
+# Lib directory
+lib/
+
+# Custom
+.idea/
+.vscode/
+
+
