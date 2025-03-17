@@ -34,4 +34,7 @@
 # Customs
 *.vs
 *.vscode
-
+*.log
+build/*
+PTPPM/intermediates/*
+PTPPM/logs/*
