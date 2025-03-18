@@ -137,15 +137,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\connection.cpp" />
-    <ClCompile Include="src\dht.cpp" />
-    <ClCompile Include="src\kbucket.cpp" />
+    <ClCompile Include="src\client.cpp" />
+    <ClCompile Include="src\gui.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\message.cpp" />
-    <ClCompile Include="src\node_id.cpp" />
-    <ClCompile Include="src\peer.cpp" />
-    <ClCompile Include="src\routing_table.cpp" />
-    <ClCompile Include="src\session.cpp" />
+    <ClCompile Include="src\server.cpp" />
     <ClCompile Include="vendor\include\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="vendor\include\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="vendor\include\glad\glad.c" />
@@ -157,15 +152,10 @@
     <ClCompile Include="vendor\include\openssl\applink.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\connection.h" />
-    <ClInclude Include="include\dht.h" />
-    <ClInclude Include="include\kbucket.h" />
-    <ClInclude Include="include\logger.h" />
-    <ClInclude Include="include\message.h" />
-    <ClInclude Include="include\node_id.h" />
-    <ClInclude Include="include\peer.h" />
-    <ClInclude Include="include\routing_table.h" />
-    <ClInclude Include="include\session.h" />
+    <ClInclude Include="include\client.h" />
+    <ClInclude Include="include\config.h" />
+    <ClInclude Include="include\gui.h" />
+    <ClInclude Include="include\server.h" />
     <ClInclude Include="vendor\include\backends\imgui_impl_glfw.h" />
     <ClInclude Include="vendor\include\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="vendor\include\backends\imgui_impl_opengl3_loader.h" />
