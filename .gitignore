@@ -38,3 +38,15 @@
 build/*
 PTPPM/intermediates/*
 PTPPM/logs/*
+
+PTPPM_Network/intermediates/*
+PTPPM_Network/logs/*
+
+PTPPM_UI/intermediates/*
+PTPPM_UI/logs/*
+
+PTPPM_Core/intermediates/*
+PTPPM_Core/logs/*
+
+PTPPM_Tests/intermediates/*
+PTPPM_Tests/logs/*
