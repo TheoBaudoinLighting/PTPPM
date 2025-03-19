@@ -1,4 +1,6 @@
 #include "boost/wrap_boost_peer.h"
+#include "network_buffer_utils.h"
+#include "dynamic_buffer.h"
 #include <iostream>
 #include <random>
 #include <boost/archive/binary_oarchive.hpp>

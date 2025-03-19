@@ -23,6 +23,8 @@
     <ClCompile Include="src\boost\wrap_boost_serialization.cpp" />
     <ClCompile Include="src\boost\wrap_boost_network.cpp" />
     <ClCompile Include="src\boost\wrap_boost_task.cpp" />
+    <ClCompile Include="src\dynamic_buffer.cpp" />
+    <ClCompile Include="src\network_buffer_utils.cpp" />
     <ClCompile Include="src\network_client.cpp" />
     <ClCompile Include="src\network_server.cpp" />
   </ItemGroup>
@@ -31,8 +33,10 @@
     <ClInclude Include="include\boost\wrap_boost_peer.h" />
     <ClInclude Include="include\boost\wrap_boost_serialization.h" />
     <ClInclude Include="include\boost\wrap_boost_task.h" />
+    <ClInclude Include="include\dynamic_buffer.h" />
     <ClInclude Include="include\inetwork_client.h" />
     <ClInclude Include="include\inetwork_server.h" />
+    <ClInclude Include="include\network_buffer_utils.h" />
     <ClInclude Include="include\network_client.h" />
     <ClInclude Include="include\network_server.h" />
   </ItemGroup>

@@ -67,8 +67,7 @@ bool NetworkClient::sendMessage(const std::string& message) {
         return false;
     }
     
-    std::vector<uint8_t> data(message.begin(), message.end());
-    wrap_boost::NetworkMessage netMsg(data);
+    wrap_boost::NetworkMessage netMsg(message);
     
     bool result = networkManager_->send(connectionId_, netMsg);
     
@@ -131,8 +130,7 @@ void NetworkClient::onDisconnect(uint64_t connectionId, const wrap_boost::Networ
 
 void NetworkClient::onMessage(uint64_t connectionId, const wrap_boost::NetworkMessage& message) {
     if (connectionId == connectionId_) {
-        const std::vector<uint8_t>& data = message.getData();
-        std::string receivedData(data.begin(), data.end());
+        std::string receivedData = message.toString();
         
         addReceivedMessage("Reçu: " + receivedData);
         spdlog::debug("Message reçu: {}", receivedData);

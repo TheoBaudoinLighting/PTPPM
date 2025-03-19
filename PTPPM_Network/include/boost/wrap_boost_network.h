@@ -12,6 +12,7 @@
 #include <queue>
 #include <mutex>
 #include <atomic>
+#include "dynamic_buffer.h"
 
 namespace wrap_boost {
 
@@ -47,15 +48,30 @@ public:
     NetworkMessage();
     NetworkMessage(const std::vector<uint8_t>& data);
     NetworkMessage(std::vector<uint8_t>&& data);
+    NetworkMessage(const DynamicBuffer& buffer);
+    NetworkMessage(std::shared_ptr<DynamicBuffer> buffer);
+    NetworkMessage(const void* data, size_t length);
+    NetworkMessage(const std::string& data);
     
-    const std::vector<uint8_t>& getData() const;
-    std::vector<uint8_t>& getData();
+    std::shared_ptr<DynamicBuffer> getBuffer() const;
+    
+    const uint8_t* data() const;
+    
+    std::vector<uint8_t> getData() const;
     
     size_t size() const;
     bool empty() const;
     
+    void append(const void* data, size_t length);
+    void append(const std::vector<uint8_t>& data);
+    void append(const std::string& data);
+    void append(const NetworkMessage& other);
+    
+    std::vector<uint8_t> toVector() const;
+    std::string toString() const;
+
 private:
-    std::vector<uint8_t> data_;
+    std::shared_ptr<DynamicBuffer> buffer_;
 };
 
 class INetworkEventHandler {
@@ -113,11 +129,11 @@ private:
     std::atomic<bool> connected_;
     std::string remoteEndpoint_;
     
-    std::vector<uint8_t> readBuffer_;
+    std::shared_ptr<DynamicBuffer> readBuffer_;
     std::queue<NetworkMessage> writeQueue_;
     std::mutex writeMutex_;
     
-    static const size_t MAX_BUFFER_SIZE = 65536;
+    static const size_t INITIAL_BUFFER_SIZE = 65536;
 };
 
 class NetworkManager : public INetworkEventHandler {

@@ -132,15 +132,14 @@ void NetworkServer::onMessage(uint64_t connectionId, const wrap_boost::NetworkMe
     }
     
     if (!endpoint.empty()) {
-        const std::vector<uint8_t>& data = message.getData();
-        std::string receivedData(data.begin(), data.end());
+        std::string receivedData = message.toString();
         
         addLog("Message de " + endpoint + ": " + receivedData);
         spdlog::debug("Message reçu de {}: {}", endpoint, receivedData);
         
         std::string echoMessage = "Echo: " + receivedData;
-        std::vector<uint8_t> echoData(echoMessage.begin(), echoMessage.end());
-        wrap_boost::NetworkMessage echoNetMsg(echoData);
+        
+        wrap_boost::NetworkMessage echoNetMsg(echoMessage);
         networkManager_->send(connectionId, echoNetMsg);
         
         if (messageCallback_) {

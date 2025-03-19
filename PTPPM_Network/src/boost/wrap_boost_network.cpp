@@ -21,26 +21,86 @@ bool NetworkErrorInfo::isError() const {
     return code_ != NetworkError::NONE;
 }
 
-NetworkMessage::NetworkMessage() : data_() {}
-
-NetworkMessage::NetworkMessage(const std::vector<uint8_t>& data) : data_(data) {}
-
-NetworkMessage::NetworkMessage(std::vector<uint8_t>&& data) : data_(std::move(data)) {}
-
-const std::vector<uint8_t>& NetworkMessage::getData() const {
-    return data_;
+NetworkMessage::NetworkMessage() 
+    : buffer_(DynamicBufferPool::getInstance().acquire()) {
 }
 
-std::vector<uint8_t>& NetworkMessage::getData() {
-    return data_;
+NetworkMessage::NetworkMessage(const std::vector<uint8_t>& data)
+    : buffer_(DynamicBufferPool::getInstance().acquire()) {
+    buffer_->append(data);
+}
+
+NetworkMessage::NetworkMessage(std::vector<uint8_t>&& data)
+    : buffer_(DynamicBufferPool::getInstance().acquire(data.size())) {
+    buffer_->append(data.data(), data.size());
+}
+
+NetworkMessage::NetworkMessage(const DynamicBuffer& buffer)
+    : buffer_(DynamicBufferPool::getInstance().acquire(buffer.size())) {
+    buffer_->append(buffer.data(), buffer.size());
+}
+
+NetworkMessage::NetworkMessage(std::shared_ptr<DynamicBuffer> buffer)
+    : buffer_(buffer) {
+    if (!buffer_) {
+        buffer_ = DynamicBufferPool::getInstance().acquire();
+    }
+}
+
+NetworkMessage::NetworkMessage(const void* data, size_t length)
+    : buffer_(DynamicBufferPool::getInstance().acquire(length)) {
+    if (data && length > 0) {
+        buffer_->append(data, length);
+    }
+}
+
+NetworkMessage::NetworkMessage(const std::string& data)
+    : buffer_(DynamicBufferPool::getInstance().acquire(data.size())) {
+    buffer_->append(data);
+}
+
+std::shared_ptr<DynamicBuffer> NetworkMessage::getBuffer() const {
+    return buffer_;
+}
+
+const uint8_t* NetworkMessage::data() const {
+    return buffer_->data();
+}
+
+std::vector<uint8_t> NetworkMessage::getData() const {
+    return buffer_->toVector();
 }
 
 size_t NetworkMessage::size() const {
-    return data_.size();
+    return buffer_->size();
 }
 
 bool NetworkMessage::empty() const {
-    return data_.empty();
+    return buffer_->empty();
+}
+
+void NetworkMessage::append(const void* data, size_t length) {
+    buffer_->append(data, length);
+}
+
+void NetworkMessage::append(const std::vector<uint8_t>& data) {
+    buffer_->append(data);
+}
+
+void NetworkMessage::append(const std::string& data) {
+    buffer_->append(data);
+}
+
+void NetworkMessage::append(const NetworkMessage& other) {
+    buffer_->append(other.data(), other.size());
+}
+
+std::vector<uint8_t> NetworkMessage::toVector() const {
+    return buffer_->toVector();
+}
+
+std::string NetworkMessage::toString() const {
+    return buffer_->toString();
 }
 
 NetworkConnection::Pointer NetworkConnection::create(boost::asio::io_context& ioContext, 
@@ -57,7 +117,8 @@ NetworkConnection::NetworkConnection(boost::asio::io_context& ioContext,
       handler_(handler), 
       connected_(false),
       remoteEndpoint_(""),
-      readBuffer_(MAX_BUFFER_SIZE) {}
+      readBuffer_(DynamicBufferPool::getInstance().acquire(INITIAL_BUFFER_SIZE)) {
+}
 
 uint64_t NetworkConnection::getId() const {
     return id_;
@@ -158,8 +219,10 @@ void NetworkConnection::startRead() {
         return;
     }
     
+    readBuffer_->reserve(INITIAL_BUFFER_SIZE);
     socket_.async_read_some(
-        boost::asio::buffer(readBuffer_),
+        boost::asio::buffer(readBuffer_->data() + readBuffer_->size(), 
+                           readBuffer_->capacity() - readBuffer_->size()),
         [this](const boost::system::error_code& error, size_t bytesTransferred) {
             handleRead(error, bytesTransferred);
         }
@@ -169,10 +232,11 @@ void NetworkConnection::startRead() {
 void NetworkConnection::handleRead(const boost::system::error_code& error, size_t bytesTransferred) {
     if (!error) {
         if (bytesTransferred > 0 && handler_) {
-            NetworkMessage message(std::vector<uint8_t>(
-                readBuffer_.begin(), 
-                readBuffer_.begin() + bytesTransferred
-            ));
+            readBuffer_->resize(readBuffer_->size() + bytesTransferred);
+            
+            NetworkMessage message(readBuffer_);
+            
+            readBuffer_ = DynamicBufferPool::getInstance().acquire(INITIAL_BUFFER_SIZE);
             
             handler_->onMessage(id_, message);
         }
@@ -200,7 +264,7 @@ void NetworkConnection::startWrite() {
     
     boost::asio::async_write(
         socket_,
-        boost::asio::buffer(writeQueue_.front().getData()),
+        boost::asio::buffer(writeQueue_.front().getData(), writeQueue_.front().size()),
         [this](const boost::system::error_code& error, size_t bytesTransferred) {
             handleWrite(error, bytesTransferred);
         }
